@@ -30,7 +30,7 @@ The Unity updater (**Tools > Git Submodules > Update Now** and the optional star
 - No submodule is moved until every relevant submodule passes preflight.
 - The updater never uses force, reset, clean, stash, rebase, or remote tracking.
 
-`Initialize Submodules.cmd` is deliberately simpler. It is a fresh-clone bootstrap, not a Git state manager. It resolves the repository root and runs:
+`Initialize Submodules.cmd` is deliberately simpler. It is a fresh-clone bootstrap, not a Git state manager. It must be located at the repository root, switches CMD to UTF-8 for Git path output, validates that root invariant, and runs:
 
 ```text
 git submodule update --init --recursive
@@ -77,7 +77,7 @@ This repository ships a generic `Initialize Submodules.cmd` at its own Git root,
 
 Use **Tools > Git Submodules > Generate Root Initialize Script** to generate or replace the same bootstrap at the adopting repository's Git root. The output location is always the resolved Git root, even when the Unity project lives in a nested directory such as `Repo/NarrativeRuntime/`.
 
-The generated script is intentionally small: it verifies Git is available, resolves the repository root, asks Git for the actual `index.lock` path, refuses to run while that lock exists, and then runs `git submodule update --init --recursive`. This prevents the bootstrap from running against the transient index state of an unfinished clone, checkout, or Git LFS filter. Git itself reports checkout/authentication/conflict failures. More restrictive synchronization policy belongs to the Unity updater, not to the bootstrap script.
+The generated script is intentionally small: it switches CMD to UTF-8, verifies Git is available, confirms its own directory is the Git repository root, asks Git for the actual `index.lock` path without suppressing Git diagnostics, refuses to run while that lock exists, and then runs `git submodule update --init --recursive`. Avoiding an absolute repository-root round trip through `for /f` prevents Unicode paths from being decoded through a legacy console code page. The lock guard prevents the bootstrap from running against the transient index state of an unfinished clone, checkout, or Git LFS filter. More restrictive synchronization policy belongs to the Unity updater, not to the bootstrap script.
 
 ## Requirements
 

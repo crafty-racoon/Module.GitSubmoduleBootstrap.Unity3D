@@ -4,6 +4,15 @@ All notable changes to this module are documented in this file.
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-10-02
+
+### Fixed
+
+- Root bootstrap scripts now switch CMD to UTF-8 before capturing Git output, preventing Traditional Chinese and other Unicode paths from being decoded through a legacy console code page.
+- The bootstrap no longer round-trips the repository absolute path through `git rev-parse --show-toplevel`; it runs from its own directory and explicitly rejects execution outside the repository root.
+- `git rev-parse --git-path index.lock` now preserves Git stderr so repository and metadata-path failures retain their primary diagnostics, including linked-worktree paths.
+
+
 ## [0.7.1] - 2026-09-18
 
 ### Fixed

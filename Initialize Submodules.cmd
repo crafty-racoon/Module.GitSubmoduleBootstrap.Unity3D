@@ -1,6 +1,7 @@
 @echo off
 setlocal EnableExtensions DisableDelayedExpansion
 title Git Submodule Initialization
+chcp 65001 >nul
 
 pushd "%~dp0" >nul || (
     echo [Git Submodules] ERROR: Could not enter the script directory.
@@ -14,19 +15,24 @@ if errorlevel 1 (
     goto :fail
 )
 
-set "GIT_ROOT="
-for /f "delims=" %%I in ('git rev-parse --show-toplevel 2^>nul') do set "GIT_ROOT=%%I"
-if not defined GIT_ROOT (
+git rev-parse --is-inside-work-tree >nul 2>nul
+if errorlevel 1 (
     echo [Git Submodules] ERROR: This script is not inside a Git working tree.
     goto :fail
 )
 
-cd /d "%GIT_ROOT%"
+set "GIT_PREFIX="
+for /f "delims=" %%I in ('git rev-parse --show-prefix') do set "GIT_PREFIX=%%I"
+if defined GIT_PREFIX (
+    echo [Git Submodules] ERROR: This script must be located at the Git repository root.
+    goto :fail
+)
+
 echo [Git Submodules] Repository root: %CD%
 echo.
 
 set "INDEX_LOCK="
-for /f "delims=" %%I in ('git rev-parse --git-path index.lock 2^>nul') do set "INDEX_LOCK=%%I"
+for /f "delims=" %%I in ('git rev-parse --git-path index.lock') do set "INDEX_LOCK=%%I"
 if not defined INDEX_LOCK (
     echo [Git Submodules] ERROR: Could not resolve the Git index lock path.
     goto :fail
